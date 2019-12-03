@@ -3,6 +3,7 @@ import numpy as np
 
 print('reading dataframes')
 deep_features = pd.read_csv('soccer-dataset/soccer_deep_features.csv')
+query_deep_features = deep_features
 ultraface = pd.read_csv('soccer-dataset/soccer_ultraface.csv')
 gallery_files = open("soccer-dataset/gallery.txt","r")
 identities = pd.read_csv('soccer-dataset/soccer_identities.csv')
@@ -31,15 +32,16 @@ def find_candidates(query):
     return candidates
 
 print('processing faces')
-best_matches = deep_features[['FILE']].copy()
-for i in range(len(deep_features)):
-    query = deep_features.loc[i].to_numpy()[1:]
+best_matches = query_deep_features[['FILE']].copy()
+for i in range(len(query_deep_features)):
+    query = query_deep_features.loc[i].to_numpy()[1:]
     best_candidate = find_candidates(query)[0]
     #thresholding
-    #if best_candidate[0] < 1310:
-        #best_matches.loc[i, 'best_candidate'] = 'No match'
-    #else:
-    best_matches.loc[i, 'best_candidate'] = best_candidate[1]
-    best_matches.loc[i, 'best_candidate_score'] = best_candidate[0]
+    if best_candidate[0] < 1310:
+        best_matches.loc[i, 'best_candidate'] = 'No match'
+        best_matches.loc[i, 'best_candidate_score'] = best_candidate[0]
+    else:
+        best_matches.loc[i, 'best_candidate'] = best_candidate[1]
+        best_matches.loc[i, 'best_candidate_score'] = best_candidate[0]
 
 best_matches.to_csv('soccer-dataset/soccer_best_matches.csv')
