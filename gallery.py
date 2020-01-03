@@ -9,12 +9,12 @@ def clear_bg_faces(df_deep_features, df_ultraface): # clear background faces
 
     return df_deep_features, df_ultraface
 
-def build_gallery(df_deep_feature, df_ultraface): # choose 2 perfect images for each person based on YAW, ROLL, PITCH
+def build_gallery(df_deep_features, df_ultraface): # choose 2 perfect images for each person based on YAW, ROLL, PITCH
     identity_group = df_ultraface.groupby('identity')
-    gallery_deep_features = pd.DataFrame()
+    gallery_deep_features = pd.DataFrame(columns=df_deep_features.columns[:-1])
     gallery_ultraface = pd.DataFrame()
     for id, df_id in identity_group:
-        if id < 40:
+        if id < 40 and id != 2 and id != 33 and id != 34:
             # sort ascendingly by the absolute value of YAW, ROLL, PITCH
             df_id = df_id.drop_duplicates(subset=['file'], keep=False)
             df_id['A'] = df_id['YAW'].abs()
@@ -23,8 +23,26 @@ def build_gallery(df_deep_feature, df_ultraface): # choose 2 perfect images for 
             df_id['D'] = df_id['A'] + df_id['B'] + df_id['C']
             df_id.sort_values(['D'], ascending=True, inplace=True)
             df_id.drop(['A', 'B', 'C', 'D'], axis=1, inplace=True)
-            perfect_images_ultraface = df_id.head(2).drop(['FILE'], axis=1)
-            perfect_images_deep_features = df_deep_feature.loc[df_id.head(2).index].drop(['FILE', 'file'], axis=1)
+            perfect_images_ultraface = df_id.head(2)
+            perfect_images_deep_features = df_deep_features.loc[perfect_images_ultraface.index].drop(['file'], axis=1)
+            perfect_images_deep_features = np.mean(perfect_images_deep_features, axis=0)
+            gallery_ultraface = gallery_ultraface.append(perfect_images_ultraface)
+            gallery_deep_features = gallery_deep_features.append(perfect_images_deep_features, ignore_index=True)
+        if id == 2:
+            perfect_images_ultraface = df_id[(df_id['file'] == 43) | (df_id['file'] == 53)]
+            perfect_images_deep_features = df_deep_features.loc[perfect_images_ultraface.index].drop(['file'], axis=1)
+            perfect_images_deep_features = np.mean(perfect_images_deep_features, axis=0)
+            gallery_ultraface = gallery_ultraface.append(perfect_images_ultraface)
+            gallery_deep_features = gallery_deep_features.append(perfect_images_deep_features, ignore_index=True)
+        if id == 33:
+            perfect_images_ultraface = df_id[(df_id['file'] == 4) | (df_id['file'] == 54)]
+            perfect_images_deep_features = df_deep_features.loc[perfect_images_ultraface.index].drop(['file'], axis=1)
+            perfect_images_deep_features = np.mean(perfect_images_deep_features, axis=0)
+            gallery_ultraface = gallery_ultraface.append(perfect_images_ultraface)
+            gallery_deep_features = gallery_deep_features.append(perfect_images_deep_features, ignore_index=True)
+        if id == 34:
+            perfect_images_ultraface = df_id[(df_id['file'] == 22) | (df_id['file'] == 54)]
+            perfect_images_deep_features = df_deep_features.loc[perfect_images_ultraface.index].drop(['file'], axis=1)
             perfect_images_deep_features = np.mean(perfect_images_deep_features, axis=0)
             gallery_ultraface = gallery_ultraface.append(perfect_images_ultraface)
             gallery_deep_features = gallery_deep_features.append(perfect_images_deep_features, ignore_index=True)
@@ -34,8 +52,8 @@ def build_gallery(df_deep_feature, df_ultraface): # choose 2 perfect images for 
     return gallery_deep_features, gallery_ultraface
 
 if __name__ == '__main__':
-    df_deep_features = pd.read_csv('soccer-dataset/soccer_deep_features_cleanup.csv').drop(['Unnamed: 0'], axis=1)
-    df_ultraface = pd.read_csv('soccer-dataset/soccer_ultraface_cleanup.csv').drop(['Unnamed: 0'], axis=1)
+    df_deep_features = pd.read_csv('soccer-dataset/soccer_deep_features_cleanup.csv', index_col=[0])
+    df_ultraface = pd.read_csv('soccer-dataset/soccer_ultraface_cleanup.csv', index_col=[0])
     df_deep_features, df_ultraface = clear_bg_faces(df_deep_features, df_ultraface)
     gallery_deep_features, gallery_ultraface = build_gallery(df_deep_features, df_ultraface)
     gallery_ultraface.to_csv('soccer-dataset/gallery_ultraface.csv')
