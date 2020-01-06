@@ -43,6 +43,11 @@ if __name__ == '__main__':
     df_deep_features = df_deep_features[~((df_deep_features['identity'] == 47) & (df_deep_features['file'] > 75))]
     df_ultraface.drop(['FILE'], axis=1, inplace=True)
     df_deep_features.drop(['FILE'], axis=1, inplace=True)
+    df_ultraface['file'].astype(int)
+    # sort identity and file numbers
+    df_ultraface.sort_values(by=['identity', 'file'], inplace=True)
+    df_deep_features['file'].astype(int)
+    df_deep_features.sort_values(by=['identity', 'file'], inplace=True)
     df_ultraface.reset_index(drop=True, inplace=True)
     df_deep_features.reset_index(drop=True, inplace=True)
     df_ultraface.to_csv('soccer-dataset/soccer_ultraface_cleanup.csv')
