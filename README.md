@@ -7,3 +7,6 @@ This program builds the gallery. It first removes low-quality face captures (usu
 
 ## matching.py
 This program finds a best match for each of the valid faces (either identity face or teammate face) in the gallery. It also records the position of the query identity for each vector (-1 if the query is not in the gallery).
+
+## cdf.py
+This program plots the CDF curve of positions of correct identities.
