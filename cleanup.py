@@ -1,5 +1,12 @@
 import pandas as pd
 
+def clear_bg_faces(df_deep_features, df_ultraface): # clear background faces
+    indexes = df_ultraface[(df_ultraface['FD_SCORE'] > 0.1) & (df_ultraface['UF_SCORE'] > 0.1)].index
+    df_deep_features = df_deep_features.loc[indexes].reset_index(drop=True)
+    df_ultraface = df_ultraface.loc[indexes].reset_index(drop=True)
+
+    return df_deep_features, df_ultraface
+
 if __name__ == '__main__':
     df_deep_features = pd.read_csv('soccer-dataset/soccer_deep_features.csv')
     df_ultraface = pd.read_csv('soccer-dataset/soccer_ultraface.csv')
@@ -48,5 +55,6 @@ if __name__ == '__main__':
     df_deep_features.sort_values(by=['identity', 'file'], inplace=True)
     df_ultraface.reset_index(drop=True, inplace=True)
     df_deep_features.reset_index(drop=True, inplace=True)
+    df_deep_features, df_ultraface = clear_bg_faces(df_deep_features, df_ultraface)
     df_ultraface.to_csv('soccer-dataset/soccer_ultraface_cleanup.csv')
     df_deep_features.to_csv('soccer-dataset/soccer_deep_features_cleanup.csv')

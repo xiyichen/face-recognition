@@ -2,13 +2,6 @@ import pandas as pd
 import numpy as np
 pd.options.mode.chained_assignment = None
 
-def clear_bg_faces(df_deep_features, df_ultraface): # clear background faces
-    indexes = df_ultraface[(df_ultraface['FD_SCORE'] > 0.1) & (df_ultraface['UF_SCORE'] > 0.1)].index
-    df_deep_features = df_deep_features.loc[indexes].reset_index(drop=True)
-    df_ultraface = df_ultraface.loc[indexes].reset_index(drop=True)
-
-    return df_deep_features, df_ultraface
-
 def build_gallery(df_deep_features, df_ultraface): # choose 2 perfect images for each person based on YAW, ROLL, PITCH
     identity_group = df_ultraface.groupby('identity')
     gallery_deep_features = pd.DataFrame(columns=df_deep_features.columns[:-1])
@@ -61,7 +54,6 @@ def build_gallery(df_deep_features, df_ultraface): # choose 2 perfect images for
 if __name__ == '__main__':
     df_deep_features = pd.read_csv('soccer-dataset/soccer_deep_features_cleanup.csv', index_col=[0])
     df_ultraface = pd.read_csv('soccer-dataset/soccer_ultraface_cleanup.csv', index_col=[0])
-    df_deep_features, df_ultraface = clear_bg_faces(df_deep_features, df_ultraface)
     gallery_deep_features, gallery_ultraface = build_gallery(df_deep_features, df_ultraface)
     gallery_ultraface.to_csv('soccer-dataset/gallery_ultraface.csv')
     gallery_deep_features.to_csv('soccer-dataset/gallery_deep_features.csv')
