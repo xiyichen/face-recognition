@@ -1,10 +1,11 @@
 import pandas as pd
 import numpy as np
+from sklearn.preprocessing import Normalizer
 
 def normalize(gallery, dataset):
     # Normalize the deep features for vectors in the gallery and the dataset
-    gallery[gallery.columns[:-1]] = gallery[gallery.columns[:-1]].div(gallery[gallery.columns[:-1]].sum(axis=1), axis=0)
-    dataset[dataset.columns[:-2]] = dataset[dataset.columns[:-2]].div(dataset[dataset.columns[:-2]].sum(axis=1), axis=0)
+    gallery[gallery.columns[:-1]] = Normalizer(norm='l2').fit_transform(gallery[gallery.columns[:-1]])
+    dataset[dataset.columns[:-2]] = Normalizer(norm='l2').fit_transform(dataset[dataset.columns[:-2]])
 
     return gallery, dataset
 
@@ -15,7 +16,7 @@ def sort_candidates(gallery, query):
         candidate = gallery.loc[i].to_numpy()
         identity = gallery.loc[i, 'identity']
         # dot product of the normalized deep feature vectors
-        candidates.append((np.dot(candidate[:-1], query[:-4]), identity))
+        candidates.append((np.dot(candidate[:-1], query[:-5]), identity))
     candidates.sort(reverse=True)
     return candidates
 
@@ -30,11 +31,13 @@ def find_position(arr, v):
 def matching(gallery, dataset):
     # Find best matches and the position of query identities for every vector in the dataset
     dataset['best_match'] = 0
+    dataset['best_matching_score'] = 0
     dataset['query_id_position'] = 0
     for i in range(len(dataset)):
         query = dataset.loc[i].to_numpy()
         candidates = sort_candidates(gallery, query)
         dataset.loc[i, 'best_match'] = candidates[0][1]
+        dataset.loc[i, 'best_matching_score'] = candidates[0][0]
         dataset.loc[i, 'query_id_position'] = find_position(candidates, dataset.loc[i, 'identity'])
     return dataset
 
