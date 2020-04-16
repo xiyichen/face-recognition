@@ -12,4 +12,4 @@ list the paths of editted images (need to change the directory)
 python add_column.py quick_test_ultraface.csv quick_test_ultraface_2.csv
 
 ## compute_csv_file (run after run.bat finishes)
-python compute_csv_file.csv quick_test_ultraface_2.csv ./templates quick_test_deep_features.csv
+python compute_csv_file.py quick_test_ultraface_2.csv ./templates quick_test_deep_features.csv
